@@ -1,0 +1,355 @@
+version: "2"
+type: backend
+tech_stack:
+  - language: PHP 8.2
+  - framework: Laravel 13
+  - database: MySQL (academia_natacion)
+  - other: Laravel Sanctum (token auth), Eloquent ORM, Form Requests
+features:
+  - name: Authentication
+    description: Login and logout using Laravel Sanctum Bearer tokens
+    files:
+      - app/Http/Controllers/Api/AuthController.php
+    endpoints:
+      - method: POST
+        path: /api/login
+        description: Authenticate user and return Bearer token
+        auth_required: false
+        request_schema:
+          body:
+            email: string
+            password: string
+        response_schema:
+          "200": "{token: string, user: {id, name, email, role}}"
+          "422": Validation error
+          "401": Invalid credentials
+      - method: POST
+        path: /api/logout
+        description: Revoke current user token
+        auth_required: true
+        response_schema:
+          "200": "{message: string}"
+      - method: GET
+        path: /api/me
+        description: Get authenticated user info
+        auth_required: true
+        response_schema:
+          "200": User object
+
+  - name: Dashboard Stats
+    description: Returns aggregate counts for dashboard cards
+    files:
+      - app/Http/Controllers/Api/DashboardController.php
+    endpoints:
+      - method: GET
+        path: /api/dashboard/stats
+        description: Get total counts of students, instructors, classes, active enrollments
+        auth_required: true
+        response_schema:
+          "200": "{estudiantes: int, instructores: int, clases: int, inscripciones_activas: int}"
+
+  - name: Student Management
+    description: CRUD for students (Estudiantes)
+    files:
+      - app/Http/Controllers/Api/EstudianteController.php
+      - app/Models/Estudiante.php
+      - app/Http/Requests/StoreEstudianteRequest.php
+      - app/Http/Requests/UpdateEstudianteRequest.php
+    endpoints:
+      - method: GET
+        path: /api/estudiantes
+        description: List students with search and pagination
+        auth_required: true
+        request_schema:
+          query:
+            search: string (optional)
+            page: int (optional)
+            per_page: int (optional, max 500)
+        response_schema:
+          "200": PaginatedResponse<Estudiante>
+      - method: POST
+        path: /api/estudiantes
+        description: Create a new student
+        auth_required: true
+        request_schema:
+          body:
+            nombre: string (required, max 80)
+            fecha_nacimiento: date (required)
+            telefono: string (optional)
+            email: email (optional)
+        response_schema:
+          "201": Estudiante
+          "422": Validation error
+      - method: GET
+        path: /api/estudiantes/{id}
+        description: Get a student by ID
+        auth_required: true
+        response_schema:
+          "200": Estudiante with inscripciones
+          "404": Not found
+      - method: PUT
+        path: /api/estudiantes/{id}
+        description: Update a student
+        auth_required: true
+        request_schema:
+          body:
+            nombre: string (required)
+            fecha_nacimiento: date (required)
+            telefono: string (optional)
+            email: email (optional)
+        response_schema:
+          "200": Estudiante
+          "422": Validation error
+      - method: DELETE
+        path: /api/estudiantes/{id}
+        description: Delete student and cascade delete related inscripciones, pagos, asistencias
+        auth_required: true
+        response_schema:
+          "200": "{message: string}"
+          "404": Not found
+
+  - name: Instructor Management
+    description: CRUD for instructors (Instructores)
+    files:
+      - app/Http/Controllers/Api/InstructorController.php
+      - app/Models/Instructor.php
+      - app/Http/Requests/StoreInstructorRequest.php
+      - app/Http/Requests/UpdateInstructorRequest.php
+    endpoints:
+      - method: GET
+        path: /api/instructores
+        description: List instructors with search and pagination
+        auth_required: true
+        request_schema:
+          query:
+            search: string (optional)
+            page: int (optional)
+        response_schema:
+          "200": PaginatedResponse<Instructor>
+      - method: POST
+        path: /api/instructores
+        description: Create a new instructor
+        auth_required: true
+        request_schema:
+          body:
+            nombre: string (required, max 80)
+            especialidad: string (optional)
+            email: email (optional)
+        response_schema:
+          "201": Instructor
+          "422": Validation error
+      - method: GET
+        path: /api/instructores/{id}
+        description: Get instructor by ID
+        auth_required: true
+        response_schema:
+          "200": Instructor with clases
+          "404": Not found
+      - method: PUT
+        path: /api/instructores/{id}
+        description: Update an instructor
+        auth_required: true
+        response_schema:
+          "200": Instructor
+      - method: DELETE
+        path: /api/instructores/{id}
+        description: Delete an instructor
+        auth_required: true
+        response_schema:
+          "200": "{message: string}"
+
+  - name: Level Management
+    description: CRUD for swim levels (Niveles)
+    files:
+      - app/Http/Controllers/Api/NivelController.php
+      - app/Models/Nivel.php
+    endpoints:
+      - method: GET
+        path: /api/niveles
+        description: List all levels (no pagination, returns array)
+        auth_required: true
+        response_schema:
+          "200": Nivel[]
+      - method: POST
+        path: /api/niveles
+        description: Create a new level
+        auth_required: true
+        request_schema:
+          body:
+            nombre_nivel: string (required, unique, max 50)
+        response_schema:
+          "201": Nivel
+      - method: PUT
+        path: /api/niveles/{id}
+        description: Update a level
+        auth_required: true
+        response_schema:
+          "200": Nivel
+      - method: DELETE
+        path: /api/niveles/{id}
+        description: Delete a level
+        auth_required: true
+        response_schema:
+          "200": "{message: string}"
+
+  - name: Class Management
+    description: CRUD for swim classes (Clases)
+    files:
+      - app/Http/Controllers/Api/ClaseController.php
+      - app/Models/Clase.php
+      - app/Http/Requests/StoreClaseRequest.php
+    endpoints:
+      - method: GET
+        path: /api/clases
+        description: List classes with nivel and instructor, pagination
+        auth_required: true
+        request_schema:
+          query:
+            page: int (optional)
+            per_page: int (optional, max 500)
+            id_nivel: int (optional)
+            id_instructor: int (optional)
+        response_schema:
+          "200": PaginatedResponse<Clase with nivel and instructor>
+      - method: POST
+        path: /api/clases
+        description: Create a new class
+        auth_required: true
+        request_schema:
+          body:
+            nombre_clase: string (required, max 100)
+            id_nivel: int (required, exists in Niveles)
+            id_instructor: int (required, exists in Instructores)
+            cupo: int (required, 1-50)
+        response_schema:
+          "201": Clase
+          "422": Validation error
+      - method: PUT
+        path: /api/clases/{id}
+        description: Update a class
+        auth_required: true
+        response_schema:
+          "200": Clase
+      - method: DELETE
+        path: /api/clases/{id}
+        description: Delete a class
+        auth_required: true
+        response_schema:
+          "200": "{message: string}"
+
+  - name: Enrollment Management
+    description: CRUD for enrollments (Inscripciones)
+    files:
+      - app/Http/Controllers/Api/InscripcionController.php
+      - app/Models/Inscripcion.php
+      - app/Http/Requests/StoreInscripcionRequest.php
+    endpoints:
+      - method: GET
+        path: /api/inscripciones
+        description: List enrollments with student and class, filter by estado
+        auth_required: true
+        request_schema:
+          query:
+            page: int (optional)
+            estado: string (optional - Activo/Suspendido/Baja)
+        response_schema:
+          "200": PaginatedResponse<Inscripcion with estudiante and clase>
+      - method: POST
+        path: /api/inscripciones
+        description: Create a new enrollment
+        auth_required: true
+        request_schema:
+          body:
+            id_estudiante: int (required, exists)
+            id_clase: int (required, exists)
+            fecha_inscripcion: date (optional)
+            estado: string (optional - Activo/Suspendido/Baja)
+        response_schema:
+          "201": Inscripcion
+          "422": Validation error
+      - method: PUT
+        path: /api/inscripciones/{id}
+        description: Update enrollment status
+        auth_required: true
+        response_schema:
+          "200": Inscripcion
+      - method: DELETE
+        path: /api/inscripciones/{id}
+        description: Delete an enrollment
+        auth_required: true
+        response_schema:
+          "200": "{message: string}"
+
+  - name: Payment Management
+    description: CRUD for payments (Pagos)
+    files:
+      - app/Http/Controllers/Api/PagoController.php
+      - app/Models/Pago.php
+    endpoints:
+      - method: GET
+        path: /api/pagos
+        description: List payments with enrollment info, filter by estado
+        auth_required: true
+        request_schema:
+          query:
+            page: int (optional)
+            estado: string (optional - Pagado/Pendiente/Vencido)
+        response_schema:
+          "200": PaginatedResponse<Pago with inscripcion.estudiante>
+      - method: POST
+        path: /api/pagos
+        description: Register a new payment
+        auth_required: true
+        request_schema:
+          body:
+            id_inscripcion: int (required, exists)
+            monto: numeric (required, min 0.01)
+            fecha_pago: date (optional)
+            metodo_pago: string (required - Efectivo/Tarjeta/Transferencia)
+            estado: string (optional - Pagado/Pendiente/Vencido)
+        response_schema:
+          "201": Pago
+          "422": Validation error
+      - method: DELETE
+        path: /api/pagos/{id}
+        description: Delete a payment
+        auth_required: true
+        response_schema:
+          "200": "{message: string}"
+
+  - name: Attendance Management
+    description: CRUD for attendance records (Asistencias)
+    files:
+      - app/Http/Controllers/Api/AsistenciaController.php
+      - app/Models/Asistencia.php
+    endpoints:
+      - method: GET
+        path: /api/asistencias
+        description: List attendance records with enrollment info, filter by date
+        auth_required: true
+        request_schema:
+          query:
+            page: int (optional)
+            fecha_clase: date (optional)
+        response_schema:
+          "200": PaginatedResponse<Asistencia with inscripcion>
+      - method: POST
+        path: /api/asistencias
+        description: Record attendance
+        auth_required: true
+        request_schema:
+          body:
+            id_inscripcion: int (required, exists)
+            fecha_clase: date (required)
+            asistio: string (required - Si/No)
+        response_schema:
+          "201": Asistencia
+          "422": Validation error
+      - method: DELETE
+        path: /api/asistencias/{id}
+        description: Delete an attendance record
+        auth_required: true
+        response_schema:
+          "200": "{message: string}"
+
+known_limitations: []

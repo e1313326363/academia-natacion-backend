@@ -1,0 +1,127 @@
+[
+  {
+    "id": "TC001",
+    "title": "POST /api/login with valid credentials returns token",
+    "description": "Verify POST /api/login with email=admin@academia.com and password=admin123 returns 200 with a Bearer token and user data."
+  },
+  {
+    "id": "TC002",
+    "title": "POST /api/login with invalid credentials returns 401",
+    "description": "Verify POST /api/login with wrong password returns 401 unauthorized error."
+  },
+  {
+    "id": "TC003",
+    "title": "GET /api/me returns authenticated user",
+    "description": "Verify GET /api/me with valid Bearer token returns the current user's name, email and role."
+  },
+  {
+    "id": "TC004",
+    "title": "GET /api/dashboard/stats returns counts",
+    "description": "Verify GET /api/dashboard/stats returns estudiantes, instructores, clases, and inscripciones_activas counts as integers."
+  },
+  {
+    "id": "TC005",
+    "title": "GET /api/estudiantes returns paginated list",
+    "description": "Verify GET /api/estudiantes returns a paginated response with data array, total, current_page, and last_page fields."
+  },
+  {
+    "id": "TC006",
+    "title": "POST /api/estudiantes creates a student",
+    "description": "Verify POST /api/estudiantes with nombre and fecha_nacimiento creates a new student and returns 201 with the created record."
+  },
+  {
+    "id": "TC007",
+    "title": "PUT /api/estudiantes/{id} updates a student",
+    "description": "Verify PUT /api/estudiantes/{id} updates the student's nombre and returns the updated record."
+  },
+  {
+    "id": "TC008",
+    "title": "DELETE /api/estudiantes/{id} deletes student with cascade",
+    "description": "Verify DELETE /api/estudiantes/{id} removes the student and any related inscripciones, pagos and asistencias."
+  },
+  {
+    "id": "TC009",
+    "title": "POST /api/estudiantes with missing nombre returns 422",
+    "description": "Verify POST /api/estudiantes without nombre field returns 422 validation error."
+  },
+  {
+    "id": "TC010",
+    "title": "GET /api/instructores returns paginated list",
+    "description": "Verify GET /api/instructores returns paginated instructor list with nombre and especialidad fields."
+  },
+  {
+    "id": "TC011",
+    "title": "POST /api/instructores creates an instructor",
+    "description": "Verify POST /api/instructores with nombre creates a new instructor and returns 201."
+  },
+  {
+    "id": "TC012",
+    "title": "PUT /api/instructores/{id} updates an instructor",
+    "description": "Verify PUT /api/instructores/{id} updates nombre and especialidad and returns the updated record."
+  },
+  {
+    "id": "TC013",
+    "title": "GET /api/niveles returns array of levels",
+    "description": "Verify GET /api/niveles returns a plain array (not paginated) with at least 4 levels including Principiante, Intermedio, Avanzado, Competencia."
+  },
+  {
+    "id": "TC014",
+    "title": "GET /api/clases returns paginated list with nivel and instructor",
+    "description": "Verify GET /api/clases returns paginated classes each with nested nivel and instructor objects."
+  },
+  {
+    "id": "TC015",
+    "title": "POST /api/clases creates a class",
+    "description": "Verify POST /api/clases with nombre_clase, id_nivel, id_instructor and cupo creates a class and returns 201."
+  },
+  {
+    "id": "TC016",
+    "title": "POST /api/clases with invalid cupo returns 422",
+    "description": "Verify POST /api/clases with cupo=0 or cupo=100 returns 422 validation error since cupo must be between 1 and 50."
+  },
+  {
+    "id": "TC017",
+    "title": "GET /api/inscripciones returns paginated list with estudiante and clase",
+    "description": "Verify GET /api/inscripciones returns paginated enrollments with nested estudiante and clase objects."
+  },
+  {
+    "id": "TC018",
+    "title": "POST /api/inscripciones creates an enrollment",
+    "description": "Verify POST /api/inscripciones with id_estudiante and id_clase creates an enrollment and returns 201."
+  },
+  {
+    "id": "TC019",
+    "title": "PUT /api/inscripciones/{id} updates enrollment estado",
+    "description": "Verify PUT /api/inscripciones/{id} with estado=Suspendido updates the enrollment status."
+  },
+  {
+    "id": "TC020",
+    "title": "GET /api/pagos returns paginated payments",
+    "description": "Verify GET /api/pagos returns paginated payments with monto, metodo_pago and estado fields."
+  },
+  {
+    "id": "TC021",
+    "title": "POST /api/pagos creates a payment",
+    "description": "Verify POST /api/pagos with id_inscripcion, monto and metodo_pago creates a payment and returns 201."
+  },
+  {
+    "id": "TC022",
+    "title": "GET /api/asistencias returns paginated attendance records",
+    "description": "Verify GET /api/asistencias returns paginated records with fecha_clase and asistio fields."
+  },
+  {
+    "id": "TC023",
+    "title": "POST /api/asistencias creates an attendance record",
+    "description": "Verify POST /api/asistencias with id_inscripcion, fecha_clase and asistio=Si creates a record and returns 201."
+  },
+  {
+    "id": "TC024",
+    "title": "Unauthenticated request returns 401",
+    "description": "Verify GET /api/estudiantes without Authorization header returns 401 unauthorized."
+  },
+  {
+    "id": "TC025",
+    "title": "POST /api/logout revokes token",
+    "description": "Verify POST /api/logout invalidates the token so subsequent requests with same token return 401."
+  }
+]

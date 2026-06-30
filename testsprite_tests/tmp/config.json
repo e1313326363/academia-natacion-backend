@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8000",
+  "backendAuthType": "public",
+  "executionArgs": {
+    "projectName": "backend",
+    "projectPath": "C:\\Users\\ianve\\Desktop\\proyectos claude\\backend",
+    "testIds": [],
+    "additionalInstruction": "",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-33Trco7v80pdhaAhVI4zYdRlGg3zb22G7v5cxPgHa7zhzoHWtRcHS81gn85Oot7BNmFp-zTEKcQk4Pkyc8zV3NJ2W2ljkHINrI1YgcbEuiams0_3Slxn84wjzME7EoeTlJk"
+    }
+  },
+  "serverPort": 21366
+}
